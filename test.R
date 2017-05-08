@@ -10,7 +10,7 @@ cumuvstempLL <- read.csv(file = "Databases/cumuvstemp_lowerlimit.txt", header = 
 cumuvstempUL <- read.csv(file = "Databases/cumuvstemp_upperlimit.txt", header = TRUE)
 
 # plaatje
-plot(cumuvstempLL,xlim=c(0,9000))
+plot(cumuvstempLL,xlim=c(0,9))
 # rechte lijn best fit
 fLL <- lm(data = cumuvstempLL, temp ~ cumuCO2)
 abline(fLL)
@@ -20,6 +20,12 @@ points(cumuvstempUL,xlim=c(0,9000))
 # rechte lijn best fit
 fUL <- lm(data = cumuvstempUL, temp ~ cumuCO2)
 abline(fUL)
+
+# gemiddelde lijn
+intercept = (coef(fLL)[1] + coef(fUL)[1])/2
+slope = (coef(fLL)[2] + coef(fUL)[2])/2
+abline(intercept, slope)
+
 
 
 #----------- Relatie cumulatieve CO2 <-> kosten -------------------
@@ -40,3 +46,24 @@ ggplot(cumuvscostsGE, aes(cumuCO2,costs)) +
 ggplot(cumuvscostsPE, aes(cumuCO2,costs)) +
   geom_point() +
   geom_smooth()
+
+
+#------------- Monte Carlo tests ---------------------
+
+runs <- 100000
+one.trial <- function(){sum(sample(c(0,1),10,replace=T)) >3}
+reps <- replicate(runs,one.trial())
+mc.binom <- sum(reps)/runs
+mc.binom
+
+runs <- 100
+xs <- runif(runs,min=-0.5,max=0.5)
+ys <- runif(runs,min=-0.5,max=0.5)
+in.circle <- xs^2 + ys^2 <= 0.5^2
+sum(in.circle)
+
+days <- 200
+changes <- rnorm(days,mean=1.001,sd=0.005)
+changes
+cumprod(c(20,changes))
+plot(cumprod(c(20,changes)),type='l')
