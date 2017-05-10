@@ -10,7 +10,7 @@ cumuvstempLL <- read.csv(file = "Databases/cumuvstemp_lowerlimit.txt", header = 
 cumuvstempUL <- read.csv(file = "Databases/cumuvstemp_upperlimit.txt", header = TRUE)
 
 # plaatje
-plot(cumuvstempLL,xlim=c(0,9))
+plot(cumuvstempLL,xlim=c(0,9000))
 # rechte lijn best fit
 fLL <- lm(data = cumuvstempLL, temp ~ cumuCO2)
 abline(fLL)
@@ -67,3 +67,61 @@ changes <- rnorm(days,mean=1.001,sd=0.005)
 changes
 cumprod(c(20,changes))
 plot(cumprod(c(20,changes)),type='l')
+
+runs <- 100000
+a.samples <- rbeta(runs,20,100)
+b.samples <- rbeta(runs,38,110)
+a.samples
+plot(a.samples)
+hist(a.samples)
+hist(b.samples)
+
+
+#------------- MC ----------------------
+
+runs <- 100000
+
+#------------- Temp 2010 --------------------------
+temp2010 <- read.csv(file = "Databases/temp2010.txt", header = TRUE)
+T2010mean <- with(temp2010,temp)[1]
+
+# [10%,90%]
+T2010std90 <- (with(temp2010,temp)[2] - with(temp2010,temp)[1])/abs(qnorm(0.90))
+T2010std10 <- (with(temp2010,temp)[1] - with(temp2010,temp)[3])/abs(qnorm(0.10))
+T2010std = (T2010std10 + T2010std90)/2
+
+# [5%,95%]
+T2010std95 <- (with(temp2010,temp)[2] - with(temp2010,temp)[1])/abs(qnorm(0.95))
+T2010std05 <- (with(temp2010,temp)[1] - with(temp2010,temp)[3])/abs(qnorm(0.05))
+T2010std2 = (T2010std05 + T2010std95)/2
+
+T2010 <- rnorm(1,mean = T2010mean, sd = T2010std)
+
+#------------ CumuCO2 2010 ------------------------
+cumuCO22010 <- read.csv(file = "Databases/cumuCO22010.txt", header = TRUE)
+CO22010mean <- 3.67 * with(cumuCO22010,cumuCO2)[1]
+
+# [10%,90%]
+CO22010std90 <- (with(cumuCO22010,cumuCO2)[2] - with(cumuCO22010,cumuCO2)[1])/abs(qnorm(0.90))
+CO22010std10 <- (with(cumuCO22010,cumuCO2)[1] - with(cumuCO22010,cumuCO2)[3])/abs(qnorm(0.10))
+CO22010std = 3.67 * (CO22010std10 + CO22010std90)/2
+
+# [5%,95%]
+CO22010std95 <- (with(cumuCO22010,cumuCO2)[2] - with(cumuCO22010,cumuCO2)[1])/abs(qnorm(0.95))
+CO22010std05 <- (with(cumuCO22010,cumuCO2)[1] - with(cumuCO22010,cumuCO2)[3])/abs(qnorm(0.05))
+CO22010std2 = 3.67 * (CO22010std05 + CO22010std95)/2
+
+CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
+
+#----------
+  
+CS <- slope
+
+cumuCO2em <- function(Ttarget){
+  iterations <- 1
+  T2010 <- rnorm(iterations, mean = T2010mean, sd = T2010std)
+  CO22010 <- rnorm(iterations, mean = CO22010mean, sd = CO22010std)
+  return(CO22010 + (Ttarget-T2010)/CS)
+}
+cumuCO2em(2)
+T2010
