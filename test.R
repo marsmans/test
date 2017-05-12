@@ -2,6 +2,7 @@
 setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
 
 library(ggplot2)
+library(sensitivity)
 
 #----------- Relatie cumulatieve CO2 <-> temperatuur -----------------
 
@@ -124,4 +125,17 @@ cumuCO2em <- function(Ttarget){
   return(CO22010 + (Ttarget-T2010)/CS)
 }
 cumuCO2em(2)
+cumuCO2em(1.5)
+
 T2010
+
+
+#---------- Iets anders, meer gestructureerd, met LHS
+
+require(lhs-package)
+
+factors <- c("T2010", "CS", "CO22010")
+q <- c("qnorm", "qnorm","qnorm")
+# q.arg <- list
+
+# Zie http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
