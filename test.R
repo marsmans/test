@@ -3,6 +3,10 @@ setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
 
 library(ggplot2)
 library(sensitivity)
+library(lhs)
+library(Hmisc)
+library(ks)
+library(pse)
 
 #----------- Relatie cumulatieve CO2 <-> temperatuur -----------------
 
@@ -26,6 +30,18 @@ abline(fUL)
 intercept = (coef(fLL)[1] + coef(fUL)[1])/2
 slope = (coef(fLL)[2] + coef(fUL)[2])/2
 abline(intercept, slope)
+
+TCREmean <- slope
+
+# [10%,90%]
+TCREstd90 <- (coef(fUL)[2] - slope)/abs(qnorm(0.90))
+TCREstd10 <- (slope - coef(fLL)[2])/abs(qnorm(0.10))
+TCREstd = (TCREstd10 + TCREstd90)/2
+
+# [5%,95%]
+TCREstd95 <- (coef(fUL)[2] - slope)/abs(qnorm(0.95))
+TCREstd05 <- (slope - coef(fLL)[2])/abs(qnorm(0.05))
+TCREstd2 = (TCREstd05 + TCREstd95)/2
 
 
 
@@ -114,7 +130,7 @@ CO22010std2 = 3.67 * (CO22010std05 + CO22010std95)/2
 
 CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
 
-#----------
+#---------- Model als onzekere functie ----------------
   
 CS <- slope
 
@@ -134,8 +150,24 @@ T2010
 
 require(lhs-package)
 
-factors <- c("T2010", "CS", "CO22010")
-q <- c("qnorm", "qnorm","qnorm")
-# q.arg <- list
+factors <- c("Ttarget","T2010", "TCRE", "CO22010")
+q <- c("qunif","qnorm", "qnorm","qnorm")
+q.arg <- list(list(min=1,max=4), list(mean=T2010mean, sd=T2010std), list(mean=TCREmean,sd=TCREstd), list(mean=CO22010mean, sd=CO22010std))
 
 # Zie http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
+
+oneRun <- function(Ttarget,T2010,TCRE,CO22010) {
+  return(CO22010 + (Ttarget - T2010)/TCRE)
+}
+
+modelRun <- function (my.data) {
+  return(mapply(oneRun, my.data[,1], my.data[,2], my.data[,3], my.data[,4]))
+}
+
+myLHS <- LHS(modelRun, factors, 200, q, q.arg, nboot=50)
+
+get.data(myLHS)
+get.results(myLHS)
+
+newLHS <- LHS(modelRun, factors, 1000, q, q.arg)
+(mySmba <- sbma(myLHS,newLHS))
