@@ -74,7 +74,6 @@ factors <- c("Ttarget","T2010", "TCRE", "CO22010")
 q <- c("qunif","qnorm", "qnorm","qnorm")
 q.arg <- list(list(min=1,max=4), list(mean=T2010mean, sd=T2010std), list(mean=TCREmean,sd=TCREstd), list(mean=CO22010mean, sd=CO22010std))
 
-# Zie http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
 
 oneRun <- function(Ttarget,T2010,TCRE,CO22010) {
   return(CO22010 + (Ttarget - T2010)/TCRE)
@@ -86,8 +85,8 @@ modelRun <- function (my.data) {
 
 myLHS <- LHS(modelRun, factors, 200, q, q.arg, nboot=50)
 
-get.data(myLHS)
-get.results(myLHS)
+myLHS.data <- get.data(myLHS)
+myLHS.results <- get.results(myLHS)
 
 newLHS <- LHS(modelRun, factors, 1000, q, q.arg)
 (mySmba <- sbma(myLHS,newLHS))
@@ -120,6 +119,8 @@ plot(x)
 
 
 #--------------- Andere manier, zonder pse ---------
+
+# Zie ook http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
 
 require(lhs)
 N <- 10000
