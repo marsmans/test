@@ -66,9 +66,9 @@ CO22010std2 = 3.67 * (CO22010std05 + CO22010std95)/2
 
 CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
 
-#---------- Iets anders, meer gestructureerd, met LHS -------
+#---------- Met LHS -------
 
-# require(lhs-package)
+# require(lhs)
 
 factors <- c("Ttarget","T2010", "TCRE", "CO22010")
 q <- c("qunif","qnorm", "qnorm","qnorm")
@@ -91,3 +91,57 @@ get.results(myLHS)
 
 newLHS <- LHS(modelRun, factors, 1000, q, q.arg)
 (mySmba <- sbma(myLHS,newLHS))
+
+par(mfrow=c(1,1))
+
+
+#------------------ Probeersels met sensitivity package ----------
+
+# Werkt nog niet echt lekker ofzo
+x <- fast99(model = NULL, factors = 3, n = 1000,
+            q = "qunif", q.arg = list(min = -pi, max = pi))
+y <- ishigami.fun(x$X)
+tell(x, y)
+print(x)
+plot(x)
+
+
+
+# Example of use of fast99 with "model = NULL"
+x <- fast99(model = modelRun, factors, n = 200,
+            q, q.arg)
+y <- ishigami.fun(x$X)
+tell(x, y)
+print(x)
+plot(x)
+
+
+
+
+
+#--------------- Andere manier, zonder pse ---------
+
+require(lhs)
+N <- 10000
+x <- randomLHS(N, 4)
+y <- x
+y[,1] <- qunif(x[,1], min=1,max=4)
+y[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
+y[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
+y[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
+
+oldpar <- par()
+par(mfrow=c(2,2))
+apply(x, 2, hist)
+
+par(mfrow=c(2,2))
+apply(y, 2, hist)
+par(oldpar)
+
+result<-mapply(oneRun, y[,1], y[,2], y[,3], y[,4])
+hist(result)
+
+d <- density(result)
+plot(d)
+
+

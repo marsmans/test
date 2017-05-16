@@ -27,8 +27,8 @@ fUL <- lm(data = cumuvstempUL, temp ~ cumuCO2)
 abline(fUL)
 
 # "gemiddelde" lijn
-intercept = (coef(fLL)[1] + coef(fUL)[1])/2
-slope = (coef(fLL)[2] + coef(fUL)[2])/2
+intercept <- (coef(fLL)[1] + coef(fUL)[1])/2
+slope <- (coef(fLL)[2] + coef(fUL)[2])/2
 abline(intercept, slope)
 
 TCREmean <- slope
