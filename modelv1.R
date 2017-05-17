@@ -1,11 +1,18 @@
-# dit is een test voor github
+#-------------------------------------------
+# 
+# Dummymodel met vrij onzeker waarden
+#
+#-------------------------------------------
+# Punten zijn ingelezen met http://arohatgi.info/WebPlotDigitizer/app/
+# 
+
 setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
 
-library(ggplot2)
+# library(ggplot2)
 library(sensitivity)
 library(lhs)
-library(Hmisc)
-library(ks)
+#library(Hmisc)
+#library(ks)
 library(pse)
 
 #----------- Relatie cumulatieve CO2 <-> temperatuur -----------------
@@ -24,12 +31,12 @@ slope = (coef(fLL)[2] + coef(fUL)[2])/2
 
 TCREmean <- slope
 
-# [10%,90%]
+# Als onzekerheidsrange [10%,90%] is
 TCREstd90 <- (coef(fUL)[2] - slope)/abs(qnorm(0.90))
 TCREstd10 <- (slope - coef(fLL)[2])/abs(qnorm(0.10))
 TCREstd = (TCREstd10 + TCREstd90)/2
 
-# [5%,95%]
+# Als onzekerheidsrange [5%,95%] is
 TCREstd95 <- (coef(fUL)[2] - slope)/abs(qnorm(0.95))
 TCREstd05 <- (slope - coef(fLL)[2])/abs(qnorm(0.05))
 TCREstd2 = (TCREstd05 + TCREstd95)/2
@@ -48,7 +55,7 @@ T2010std95 <- (with(temp2010,temp)[2] - with(temp2010,temp)[1])/abs(qnorm(0.95))
 T2010std05 <- (with(temp2010,temp)[1] - with(temp2010,temp)[3])/abs(qnorm(0.05))
 T2010std2 = (T2010std05 + T2010std95)/2
 
-T2010 <- rnorm(1,mean = T2010mean, sd = T2010std)
+# T2010 <- rnorm(1,mean = T2010mean, sd = T2010std)
 
 #------------ CumuCO2 2010 ------------------------
 cumuCO22010 <- read.csv(file = "Databases/cumuCO22010.txt", header = TRUE)
@@ -66,7 +73,7 @@ CO22010std2 = 3.67 * (CO22010std05 + CO22010std95)/2
 
 CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
 
-#---------- Met LHS -------
+#---------- Model run met LHS uit package pse -------
 
 # require(lhs)
 
@@ -97,8 +104,7 @@ par(mfrow=c(1,1))
 #------------------ Probeersels met sensitivity package ----------
 
 # Werkt nog niet echt lekker ofzo
-x <- fast99(model = NULL, factors = 3, n = 1000,
-            q = "qunif", q.arg = list(min = -pi, max = pi))
+x <- fast99(model = NULL, factors = 3, n = 1000, q = "qunif", q.arg = list(min = -pi, max = pi))
 y <- ishigami.fun(x$X)
 tell(x, y)
 print(x)
@@ -107,8 +113,7 @@ plot(x)
 
 
 # Example of use of fast99 with "model = NULL"
-x <- fast99(model = modelRun, factors, n = 200,
-            q, q.arg)
+x <- fast99(model = modelRun, factors, n = 200,q, q.arg)
 y <- ishigami.fun(x$X)
 tell(x, y)
 print(x)
@@ -145,4 +150,43 @@ hist(result)
 d <- density(result)
 plot(d)
 
+fast99(model = modelRun, factors = factors, 200, q, q.arg)
 
+data.frame(matrix(runif(3*n, min = 0.1, max = 2), nrow=n))
+
+# test
+factorstest <- c("x1", "x2", "x3")
+factorstest2 <- c("x1", "x2", "x3","x4")
+
+qtest <- c("qunif", "qnorm", "qunif")
+qtest2 <- c("qunif", "qnorm", "qnorm", "qnorm")
+
+q.argtest <- list(list(min=1,max=4), list(mean=T2010mean, sd=T2010std), list(min=1,max=4))
+q.argtest2 <- list(list(min=1,max=4), list(mean=T2010mean, sd=T2010std), list(mean=TCREmean,sd=TCREstd), list(mean=CO22010mean, sd=CO22010std))
+
+modelRuntest <- function (Input) {
+  (Input[,1]-0.5)*2 + (Input[,2]+1)*5 + (Input[,3]-0.2)*3
+}
+
+modelRuntest2 <- function (Input) {
+  (Input[,1]-0.5)*2 + (Input[,2]+1)*5 + (Input[,3]-0.2)*3 + (Input[,4]-0.2)*3
+}
+
+test <- fast99(modelRuntest, factorstest, n = 1000, q = qtest,  q.arg = q.argtest )
+test2 <- fast99(modelRuntest2, factorstest2, n = 1000, q = qtest2,  q.arg = q.argtest2)
+
+x <- fast99(modelRun, factors, n = 1000, q = q, q.arg = q.arg)
+x <- fast99(model = modelRun, factors, n = 200,q, q.arg)
+
+test
+test2
+
+modelRuntest2
+factorstest2
+qtest2
+q.argtest2
+
+modelRun
+factors
+q
+q.arg
