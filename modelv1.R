@@ -73,6 +73,14 @@ CO22010std2 = 3.67 * (CO22010std05 + CO22010std95)/2
 
 CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
 
+#------------ Schrijf naar file ------------
+
+write(paste("T2010mean = ",T2010mean), "parameters.txt", append = FALSE)
+write(paste("\nT2010sd = ",T2010std), "parameters.txt", append = TRUE)
+
+T2010mean
+
+
 #---------- Model run met LHS uit package pse -------
 
 # require(lhs)
