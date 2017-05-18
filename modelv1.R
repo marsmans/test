@@ -1,6 +1,6 @@
 #-------------------------------------------
 # 
-# Dummymodel met vrij onzeker waarden
+# Dummymodel met vrij onzekere waarden
 #
 #-------------------------------------------
 # Punten zijn ingelezen met http://arohatgi.info/WebPlotDigitizer/app/
@@ -8,7 +8,7 @@
 
 setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
 
-# library(ggplot2)
+library(ggplot2)
 library(sensitivity)
 library(lhs)
 #library(Hmisc)
@@ -75,11 +75,15 @@ CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
 
 #------------ Schrijf naar file ------------
 
-write(paste("T2010mean = ",T2010mean), "parameters.txt", append = FALSE)
-write(paste("\nT2010sd = ",T2010std), "parameters.txt", append = TRUE)
+parameters <- c(paste("T2010mean = ",T2010mean),paste("T2010sd(10-90) = ",T2010std),paste("T2010sd2(5-95) = ",T2010std2),
+                paste("CO22010mean = ",CO22010mean),paste("CO22010sd(10-90) = ",CO22010std),paste("T2010sd2(5-95) = ",CO22010std2),
+                paste("TCREmean = ",TCREmean),paste("TCREsd(10-90) = ",TCREstd),paste("TCREsd2(5-95) = ",TCREstd2))
 
-T2010mean
+# write(parameters, "parameters.txt", append = FALSE, sep = "\n")
 
+fileConn <- file("test/parameters.txt")
+writeLines(parameters, fileConn)
+close(fileConn)
 
 #---------- Model run met LHS uit package pse -------
 
@@ -106,8 +110,14 @@ myLHS.results <- get.results(myLHS)
 newLHS <- LHS(modelRun, factors, 1000, q, q.arg)
 (mySmba <- sbma(myLHS,newLHS))
 
-par(mfrow=c(1,1))
-
+# scatterplots:
+par(mfrow=c(2,2), oma=c(2,0,2,0))
+Ttarget.plot <- plot(myLHS.results~myLHS.data[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
+T2010.plot <- plot(myLHS.results~myLHS.data[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
+TCRE.plot <- plot(myLHS.results~myLHS.data[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
+CO22010.plot <- plot(myLHS.results~myLHS.data[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
+title("Cumu-Co2-emissions", outer=TRUE)
+mtext(side=1, "LHS, N=200, T2010=1-4", outer=TRUE)
 
 #------------------ Probeersels met sensitivity package ----------
 
@@ -119,7 +129,6 @@ print(x)
 plot(x)
 
 
-
 # Example of use of fast99 with "model = NULL"
 x <- fast99(model = modelRun, factors, n = 200,q, q.arg)
 y <- ishigami.fun(x$X)
@@ -129,21 +138,29 @@ plot(x)
 
 
 
-
-
 #--------------- Andere manier, zonder pse ---------
 
 # Zie ook http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
 
 require(lhs)
-N <- 10000
+N <- 1000
+# maak random LHS
 x <- randomLHS(N, 4)
 y <- x
-y[,1] <- qunif(x[,1], min=1,max=4)
+# transformeer random LHS naar LHS met goede parameters
+y[,1] <- qunif(x[,1], min=3,max=3)
 y[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
 y[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
 y[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
 
+# run model
+# result<-mapply(oneRun, y[,1], y[,2], y[,3], y[,4])
+
+cumuCO2result <- mapply(oneRun, y[,1], y[,2], y[,3], y[,4])
+
+
+# maak plaatjes
+# histogrammen van input
 oldpar <- par()
 par(mfrow=c(2,2))
 apply(x, 2, hist)
@@ -152,12 +169,26 @@ par(mfrow=c(2,2))
 apply(y, 2, hist)
 par(oldpar)
 
-result<-mapply(oneRun, y[,1], y[,2], y[,3], y[,4])
-hist(result)
+hist(cumuCO2result)
+par(mfrow=c(2,2))
 
-d <- density(result)
+#apply(y,2, function (y) {plot(cumuCO2result~y)})
+
+# scatterplots:
+par(mfrow=c(2,2), oma=c(2,0,2,0))
+Ttarget.plot <- plot(cumuCO2result~y[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
+T2010.plot <- plot(cumuCO2result~y[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
+TCRE.plot <- plot(cumuCO2result~y[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
+CO22010.plot <- plot(cumuCO2result~y[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
+title("Cumu-Co2-emissions", outer=TRUE)
+mtext(side=1, "LHS, N=1000, T2010=3", outer=TRUE)
+
+
+d <- density(cumuCO2result)
 plot(d)
 
+
+#---------- fast99 (?) -------
 fast99(model = modelRun, factors = factors, 200, q, q.arg)
 
 data.frame(matrix(runif(3*n, min = 0.1, max = 2), nrow=n))
