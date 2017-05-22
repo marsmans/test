@@ -141,6 +141,7 @@ plot(x)
 #--------------- Andere manier, zonder pse ---------
 
 # Zie ook http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
+# en https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2570191/
 
 require(lhs)
 N <- 1000
