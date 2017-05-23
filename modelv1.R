@@ -11,7 +11,7 @@ setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
 library(ggplot2)
 library(sensitivity)
 library(lhs)
-#library(Hmisc)
+library(Hmisc)
 #library(ks)
 library(pse)
 
@@ -130,7 +130,7 @@ plot(x)
 
 
 # Example of use of fast99 with "model = NULL"
-x <- fast99(model = modelRun, factors, n = 200,q, q.arg)
+x <- fast99(model = modelRun, factors, n = 200, q, q.arg)
 y <- ishigami.fun(x$X)
 tell(x, y)
 print(x)
@@ -146,19 +146,25 @@ plot(x)
 require(lhs)
 N <- 1000
 # maak random LHS
+set.seed(21)
 x <- randomLHS(N, 4)
-y <- x
+# geef namen
+colnames(x) <- c("Ttarget", "T2010", "TCRE", "CO22010")
+
 # transformeer random LHS naar LHS met goede parameters
-y[,1] <- qunif(x[,1], min=3,max=3)
-y[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
-y[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
-y[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
+# T2010 = 1-4
+y.14 <- x
+set.seed(21)
+y.14[,1] <- qunif(x[,1], min=1,max=4)
+y.14[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
+y.14[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
+y.14[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
 
 # run model
-# result<-mapply(oneRun, y[,1], y[,2], y[,3], y[,4])
+cumuCO2result.14 <- mapply(oneRun, y.14[,1], y.14[,2], y.14[,3], y.14[,4])
 
-cumuCO2result <- mapply(oneRun, y[,1], y[,2], y[,3], y[,4])
-
+# bundel data en resultaat
+z.14 <- cbind(y.14, cumuCO2result.14)
 
 # maak plaatjes
 # histogrammen van input
@@ -170,27 +176,159 @@ par(mfrow=c(2,2))
 apply(y, 2, hist)
 par(oldpar)
 
-hist(cumuCO2result)
+hist(cumuCO2result.14)
 par(mfrow=c(2,2))
 
 #apply(y,2, function (y) {plot(cumuCO2result~y)})
 
 # scatterplots:
 par(mfrow=c(2,2), oma=c(2,0,2,0))
-Ttarget.plot <- plot(cumuCO2result~y[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
-T2010.plot <- plot(cumuCO2result~y[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
-TCRE.plot <- plot(cumuCO2result~y[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
-CO22010.plot <- plot(cumuCO2result~y[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
+Ttarget.plot.14 <- plot(cumuCO2result.14~y.14[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
+T2010.plot.14 <- plot(cumuCO2result.14~y.14[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
+TCRE.plot.14 <- plot(cumuCO2result.14~y.14[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
+CO22010.plot.14 <- plot(cumuCO2result.14~y.14[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
 title("Cumu-Co2-emissions", outer=TRUE)
-mtext(side=1, "LHS, N=1000, T2010=3", outer=TRUE)
+mtext(side=1, "LHS, N=1000, Ttarget=1-4", outer=TRUE)
+
+d <- density(cumuCO2result)
+plot(d)
+
+CCmatrix <- cor(z.14)
+
+
+# T2010 = 1.5
+y.1.5 <- x
+set.seed(21)
+y.1.5[,1] <- qunif(x[,1], min=1.5,max=1.5)
+y.1.5[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
+y.1.5[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
+y.1.5[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
+
+# run model
+cumuCO2result.1.5 <- mapply(oneRun, y.1.5[,1], y.1.5[,2], y.1.5[,3], y.1.5[,4])
+
+# bundel data en resultaat
+z.1.5 <- cbind(y.1.5, cumuCO2result.1.5)
+
+# maak plaatjes
+oldpar <- par()
+
+#histogram van input
+par(mfrow=c(2,2))
+apply(y.1.5, 2, hist)
+par(oldpar)
+
+hist(cumuCO2result.1.5)
+par(mfrow=c(2,2))
+
+#apply(y,2, function (y) {plot(cumuCO2result~y)})
+
+# scatterplots:
+par(mfrow=c(2,2), oma=c(2,0,2,0))
+Ttarget.plot.1.5 <- plot(cumuCO2result.1.5~y.1.5[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
+T2010.plot.1.5 <- plot(cumuCO2result.1.5~y.1.5[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
+TCRE.plot.1.5 <- plot(cumuCO2result.1.5~y.1.5[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
+CO22010.plot.1.5 <- plot(cumuCO2result.1.5~y.1.5[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
+title("Cumu-Co2-emissions", outer=TRUE)
+mtext(side=1, "LHS, N=1000, Ttarget=1.5", outer=TRUE)
 
 
 d <- density(cumuCO2result)
 plot(d)
 
 
+
+# T2010 = 2
+y.2 <- x
+set.seed(21)
+y.2[,1] <- qunif(x[,1], min=2,max=2)
+y.2[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
+y.2[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
+y.2[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
+
+# run model
+cumuCO2result.2 <- mapply(oneRun, y.2[,1], y.2[,2], y.2[,3], y.2[,4])
+
+# bundel data en resultaat
+z.2 <- cbind(y.2, cumuCO2result.2)
+
+# maak plaatjes
+oldpar <- par()
+
+#histogram van input
+par(mfrow=c(2,2))
+apply(y.2, 2, hist)
+par(oldpar)
+
+hist(cumuCO2result.2)
+par(mfrow=c(2,2))
+
+#apply(y,2, function (y) {plot(cumuCO2result~y)})
+
+# scatterplots:
+par(mfrow=c(2,2), oma=c(2,0,2,0))
+Ttarget.plot.2 <- plot(cumuCO2result.2~y.2[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
+T2010.plot.2 <- plot(cumuCO2result.2~y.2[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
+TCRE.plot.2 <- plot(cumuCO2result.2~y.2[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
+CO22010.plot.2 <- plot(cumuCO2result.2~y.2[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
+title("Cumu-Co2-emissions", outer=TRUE)
+mtext(side=1, "LHS, N=1000, Ttarget=2", outer=TRUE)
+
+cor(z)
+
+
+d <- density(cumuCO2result.2)
+plot(d)
+
+
+
+
+
+# T2010 = 3
+y.3 <- x
+set.seed(21)
+y.3[,1] <- qunif(x[,1], min=3,max=3)
+y.3[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
+y.3[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
+y.3[,4] <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
+
+# run model
+cumuCO2result.3 <- mapply(oneRun, y.3[,1], y.3[,2], y.3[,3], y.3[,4])
+
+# bundel data en resultaat
+z.3 <- cbind(y.3, cumuCO2result.3)
+
+# maak plaatjes
+oldpar <- par()
+
+#histogram van input
+par(mfrow=c(2,2))
+apply(y.2, 2, hist)
+par(oldpar)
+
+hist(cumuCO2result.3)
+par(mfrow=c(2,2))
+
+#apply(y,2, function (y) {plot(cumuCO2result~y)})
+
+# scatterplots:
+par(mfrow=c(2,2), oma=c(2,0,2,0))
+Ttarget.plot.3 <- plot(cumuCO2result.3~y.3[,1], sub = "Ttarget", xlab = "temp", ylab = "cumulative CO2 emissions")
+T2010.plot.3 <- plot(cumuCO2result.3~y.3[,2], sub = "T2010", xlab = "temp", ylab = "cumulative CO2 emissions")
+TCRE.plot.3 <- plot(cumuCO2result.3~y.3[,3], sub = "TCRE", xlab = "TCRE", ylab = "cumulative CO2 emissions")
+CO22010.plot.3 <- plot(cumuCO2result.3~y.3[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
+title("Cumu-Co2-emissions", outer=TRUE)
+mtext(side=1, "LHS, N=1000, Ttarget=3", outer=TRUE)
+
+
+d <- density(cumuCO2result.3)
+plot(d)
+
+
+
+
 #---------- fast99 (?) -------
-fast99(model = modelRun, factors = factors, 200, q, q.arg)
+fast99(model = modelRun, factors = factors, 200, q, q.arg) # werkt niet
 
 data.frame(matrix(runif(3*n, min = 0.1, max = 2), nrow=n))
 
@@ -215,18 +353,7 @@ modelRuntest2 <- function (Input) {
 test <- fast99(modelRuntest, factorstest, n = 1000, q = qtest,  q.arg = q.argtest )
 test2 <- fast99(modelRuntest2, factorstest2, n = 1000, q = qtest2,  q.arg = q.argtest2)
 
-x <- fast99(modelRun, factors, n = 1000, q = q, q.arg = q.arg)
-x <- fast99(model = modelRun, factors, n = 200,q, q.arg)
+x <- fast99(modelRun, factors, n = 1000, q = q, q.arg = q.arg) # werkt wel
+x <- fast99(model = modelRun, factors, n = 2000, q = q, q.arg = q.arg)       # werkt niet... ? wel... ?
+x
 
-test
-test2
-
-modelRuntest2
-factorstest2
-qtest2
-q.argtest2
-
-modelRun
-factors
-q
-q.arg
