@@ -119,6 +119,9 @@ CO22010.plot <- plot(myLHS.results~myLHS.data[,4], sub = "CO22010", xlab = "cumu
 title("Cumu-Co2-emissions", outer=TRUE)
 mtext(side=1, "LHS, N=200, T2010=1-4", outer=TRUE)
 
+
+
+
 #------------------ Probeersels met sensitivity package ----------
 
 # Werkt nog niet echt lekker ofzo
@@ -146,7 +149,7 @@ plot(x)
 require(lhs)
 N <- 1000
 # maak random LHS
-set.seed(21)
+set.seed(234671)
 x <- randomLHS(N, 4)
 # geef namen
 colnames(x) <- c("Ttarget", "T2010", "TCRE", "CO22010")
@@ -154,7 +157,7 @@ colnames(x) <- c("Ttarget", "T2010", "TCRE", "CO22010")
 # transformeer random LHS naar LHS met goede parameters
 # T2010 = 1-4
 y.14 <- x
-set.seed(21)
+set.seed(2346771)
 y.14[,1] <- qunif(x[,1], min=1,max=4)
 y.14[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
 y.14[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
@@ -189,6 +192,8 @@ TCRE.plot.14 <- plot(cumuCO2result.14~y.14[,3], sub = "TCRE", xlab = "TCRE", yla
 CO22010.plot.14 <- plot(cumuCO2result.14~y.14[,4], sub = "CO22010", xlab = "cumulative CO2 emissions", ylab = "cumulative CO2 emissions")
 title("Cumu-Co2-emissions", outer=TRUE)
 mtext(side=1, "LHS, N=1000, Ttarget=1-4", outer=TRUE)
+
+plotprcc(myLHS)
 
 # density function
 d.14 <- density(cumuCO2result.14)
