@@ -76,7 +76,7 @@ CO22010 <- rnorm(1,mean = CO22010mean, sd = CO22010std)
 #------------ Schrijf naar file ------------
 
 parameters <- c(paste("T2010mean = ",T2010mean),paste("T2010sd(10-90) = ",T2010std),paste("T2010sd2(5-95) = ",T2010std2),
-                paste("CO22010mean = ",CO22010mean),paste("CO22010sd(10-90) = ",CO22010std),paste("T2010sd2(5-95) = ",CO22010std2),
+                paste("CO22010mean = ",CO22010mean),paste("CO22010sd(10-90) = ",CO22010std),paste("CO22010sd2(5-95) = ",CO22010std2),
                 paste("TCREmean = ",TCREmean),paste("TCREsd(10-90) = ",TCREstd),paste("TCREsd2(5-95) = ",TCREstd2))
 
 # write(parameters, "parameters.txt", append = FALSE, sep = "\n")
@@ -173,7 +173,7 @@ par(mfrow=c(2,2))
 apply(x, 2, hist)
 
 par(mfrow=c(2,2))
-apply(y, 2, hist)
+apply(y.14, 2, hist)
 par(oldpar)
 
 hist(cumuCO2result.14)
@@ -190,10 +190,12 @@ CO22010.plot.14 <- plot(cumuCO2result.14~y.14[,4], sub = "CO22010", xlab = "cumu
 title("Cumu-Co2-emissions", outer=TRUE)
 mtext(side=1, "LHS, N=1000, Ttarget=1-4", outer=TRUE)
 
-d <- density(cumuCO2result)
-plot(d)
+# density function
+d.14 <- density(cumuCO2result.14)
+plot(d.14)
 
-CCmatrix <- cor(z.14)
+# correlation coefficient matrix
+CCmatrix.14 <- cor(z.14)
 
 
 # T2010 = 1.5
@@ -232,9 +234,12 @@ CO22010.plot.1.5 <- plot(cumuCO2result.1.5~y.1.5[,4], sub = "CO22010", xlab = "c
 title("Cumu-Co2-emissions", outer=TRUE)
 mtext(side=1, "LHS, N=1000, Ttarget=1.5", outer=TRUE)
 
+# correlation coefficient matrix
+CCmatrix.1.5 <- cor(z.1.5)
 
-d <- density(cumuCO2result)
-plot(d)
+# density function
+d.1.5 <- density(cumuCO2result.1.5)
+plot(d.1.5)
 
 
 
@@ -274,12 +279,12 @@ CO22010.plot.2 <- plot(cumuCO2result.2~y.2[,4], sub = "CO22010", xlab = "cumulat
 title("Cumu-Co2-emissions", outer=TRUE)
 mtext(side=1, "LHS, N=1000, Ttarget=2", outer=TRUE)
 
-cor(z)
+# correlation coefficient matrix
+CCmatrix.2 <- cor(z.2)
 
-
-d <- density(cumuCO2result.2)
-plot(d)
-
+# density function
+d.2 <- density(cumuCO2result.2)
+plot(d.2)
 
 
 
@@ -320,10 +325,12 @@ CO22010.plot.3 <- plot(cumuCO2result.3~y.3[,4], sub = "CO22010", xlab = "cumulat
 title("Cumu-Co2-emissions", outer=TRUE)
 mtext(side=1, "LHS, N=1000, Ttarget=3", outer=TRUE)
 
+# correlation coefficient matrix
+CCmatrix.3 <- cor(z.3)
 
-d <- density(cumuCO2result.3)
-plot(d)
-
+# density function
+d.3 <- density(cumuCO2result.3)
+plot(d.3)
 
 
 
