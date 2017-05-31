@@ -179,7 +179,8 @@ hist(y.14[,2], breaks = "Scott")
 hist(y.14[,3], breaks = "Scott")
 hist(y.14[,4], breaks = "Scott")
 # apply(y.1.5, 2, hist)
-par(oldpar)
+par(mfrow=c(1,1))
+# par(oldpar)
 
 hist(cumuCO2result.14)
 par(mfrow=c(2,2))
@@ -229,12 +230,13 @@ hist(y.1.5[,2], breaks = "Scott")
 hist(y.1.5[,3], breaks = "Scott")
 hist(y.1.5[,4], breaks = "Scott")
 # apply(y.1.5, 2, hist)
-par(oldpar)
+par(mfrow=c(1,1))
+# par(oldpar)
 
 hist(cumuCO2result.1.5)
 par(mfrow=c(2,2))
 
-#apply(y,2, function (y) {plot(cumuCO2result~y)})
+# apply(y,2, function (y) {plot(cumuCO2result~y)})
 
 # scatterplots:
 par(mfrow=c(2,2), oma=c(2,0,2,0))
@@ -269,7 +271,7 @@ cumuCO2result.2 <- mapply(oneRun, y.2[,1], y.2[,2], y.2[,3], y.2[,4])
 z.2 <- cbind(y.2, cumuCO2result.2)
 
 # maak plaatjes
-oldpar <- par()
+# oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
@@ -278,9 +280,10 @@ hist(y.2[,2], breaks = "Scott")
 hist(y.2[,3], breaks = "Scott")
 hist(y.2[,4], breaks = "Scott")
 # apply(y.1.5, 2, hist)
-par(oldpar)
+par(mfrow=c(1,1))
+#dev.off()
 
-hist(cumuCO2result.2)
+hist(cumuCO2result.2, breaks = "Scott")
 par(mfrow=c(2,2))
 
 #apply(y,2, function (y) {plot(cumuCO2result~y)})
@@ -327,7 +330,8 @@ hist(y.3[,2], breaks = "Scott")
 hist(y.3[,3], breaks = "Scott")
 hist(y.3[,4], breaks = "Scott")
 # apply(y.1.5, 2, hist)
-par(oldpar)
+par(mfrow=c(1,1))
+#par(oldpar)
 
 hist(cumuCO2result.3)
 par(mfrow=c(2,2))
