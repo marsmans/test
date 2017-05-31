@@ -149,7 +149,7 @@ plot(x)
 require(lhs)
 N <- 1000
 # maak random LHS
-set.seed(234671)
+set.seed(21)
 x <- randomLHS(N, 4)
 # geef namen
 colnames(x) <- c("Ttarget", "T2010", "TCRE", "CO22010")
@@ -157,7 +157,7 @@ colnames(x) <- c("Ttarget", "T2010", "TCRE", "CO22010")
 # transformeer random LHS naar LHS met goede parameters
 # T2010 = 1-4
 y.14 <- x
-set.seed(2346771)
+set.seed(21)
 y.14[,1] <- qunif(x[,1], min=1,max=4)
 y.14[,2] <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
 y.14[,3] <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
@@ -170,13 +170,15 @@ cumuCO2result.14 <- mapply(oneRun, y.14[,1], y.14[,2], y.14[,3], y.14[,4])
 z.14 <- cbind(y.14, cumuCO2result.14)
 
 # maak plaatjes
-# histogrammen van input
 oldpar <- par()
-par(mfrow=c(2,2))
-apply(x, 2, hist)
 
+#histogram van input
 par(mfrow=c(2,2))
-apply(y.14, 2, hist)
+hist(y.14[,1], breaks = "Scott")
+hist(y.14[,2], breaks = "Scott")
+hist(y.14[,3], breaks = "Scott")
+hist(y.14[,4], breaks = "Scott")
+# apply(y.1.5, 2, hist)
 par(oldpar)
 
 hist(cumuCO2result.14)
@@ -222,7 +224,11 @@ oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
-apply(y.1.5, 2, hist)
+hist(y.1.5[,1], breaks = "Scott")
+hist(y.1.5[,2], breaks = "Scott")
+hist(y.1.5[,3], breaks = "Scott")
+hist(y.1.5[,4], breaks = "Scott")
+# apply(y.1.5, 2, hist)
 par(oldpar)
 
 hist(cumuCO2result.1.5)
@@ -267,7 +273,11 @@ oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
-apply(y.2, 2, hist)
+hist(y.2[,1], breaks = "Scott")
+hist(y.2[,2], breaks = "Scott")
+hist(y.2[,3], breaks = "Scott")
+hist(y.2[,4], breaks = "Scott")
+# apply(y.1.5, 2, hist)
 par(oldpar)
 
 hist(cumuCO2result.2)
@@ -293,7 +303,6 @@ plot(d.2)
 
 
 
-
 # T2010 = 3
 y.3 <- x
 set.seed(21)
@@ -313,7 +322,11 @@ oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
-apply(y.2, 2, hist)
+hist(y.3[,1], breaks = "Scott")
+hist(y.3[,2], breaks = "Scott")
+hist(y.3[,3], breaks = "Scott")
+hist(y.3[,4], breaks = "Scott")
+# apply(y.1.5, 2, hist)
 par(oldpar)
 
 hist(cumuCO2result.3)
@@ -338,6 +351,10 @@ d.3 <- density(cumuCO2result.3)
 plot(d.3)
 
 
+# bundel alle CC waarden
+CCmatrix <- rbind(CCmatrix.14[,5], CCmatrix.1.5[,5], CCmatrix.2[,5], CCmatrix.3[,5])
+CCmatrix <- CCmatrix[,-5]
+rownames(CCmatrix) <- c("1-4", "1.5", "2", "3")
 
 #---------- fast99 (?) -------
 fast99(model = modelRun, factors = factors, 200, q, q.arg) # werkt niet
