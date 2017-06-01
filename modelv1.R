@@ -14,6 +14,7 @@ library(lhs)
 library(Hmisc)
 #library(ks)
 library(pse)
+library(xtable)
 
 #----------- Relatie cumulatieve CO2 <-> temperatuur -----------------
 
@@ -85,7 +86,7 @@ fileConn <- file("test/parameters.txt")
 writeLines(parameters, fileConn)
 close(fileConn)
 
-#---------- Model run met LHS uit package pse -------
+#----------- Define parameters and model -----------------
 
 # require(lhs)
 
@@ -101,6 +102,8 @@ oneRun <- function(Ttarget,T2010,TCRE,CO22010) {
 modelRun <- function (my.data) {
   return(mapply(oneRun, my.data[,1], my.data[,2], my.data[,3], my.data[,4]))
 }
+
+#---------- Model run met LHS uit package pse -----------
 
 myLHS <- LHS(modelRun, factors, 200, q, q.arg, nboot=50)
 
@@ -174,10 +177,10 @@ oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
-hist(y.14[,1], breaks = "Scott")
-hist(y.14[,2], breaks = "Scott")
-hist(y.14[,3], breaks = "Scott")
-hist(y.14[,4], breaks = "Scott")
+hist(y.14[,1], breaks = "Scott", main = "Histogram of Ttarget", xlab = "Ttarget")
+hist(y.14[,2], breaks = "Scott", main = "Histogram of T2010", xlab = "T2010")
+hist(y.14[,3], breaks = "Scott", main = "Histogram of TCRE", xlab = "TCRE")
+hist(y.14[,4], breaks = "Scott", main = "Histogram of CO22010", xlab = "CO22010")
 # apply(y.1.5, 2, hist)
 par(mfrow=c(1,1))
 # par(oldpar)
@@ -225,10 +228,10 @@ oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
-hist(y.1.5[,1], breaks = "Scott")
-hist(y.1.5[,2], breaks = "Scott")
-hist(y.1.5[,3], breaks = "Scott")
-hist(y.1.5[,4], breaks = "Scott")
+hist(y.1.5[,1], breaks = "Scott", main = "Histogram of Ttarget", xlab = "Ttarget")
+hist(y.1.5[,2], breaks = "Scott", main = "Histogram of T2010", xlab = "T2010")
+hist(y.1.5[,3], breaks = "Scott", main = "Histogram of TCRE", xlab = "TCRE")
+hist(y.1.5[,4], breaks = "Scott", main = "Histogram of CO22010", xlab = "CO22010")
 # apply(y.1.5, 2, hist)
 par(mfrow=c(1,1))
 # par(oldpar)
@@ -275,10 +278,10 @@ z.2 <- cbind(y.2, cumuCO2result.2)
 
 #histogram van input
 par(mfrow=c(2,2))
-hist(y.2[,1], breaks = "Scott")
-hist(y.2[,2], breaks = "Scott")
-hist(y.2[,3], breaks = "Scott")
-hist(y.2[,4], breaks = "Scott")
+hist(y.2[,1], breaks = "Scott", main = "Histogram of Ttarget", xlab = "Ttarget")
+hist(y.2[,2], breaks = "Scott", main = "Histogram of T2010", xlab = "T2010")
+hist(y.2[,3], breaks = "Scott", main = "Histogram of TCRE", xlab = "TCRE")
+hist(y.2[,4], breaks = "Scott", main = "Histogram of CO22010", xlab = "CO22010")
 # apply(y.1.5, 2, hist)
 par(mfrow=c(1,1))
 #dev.off()
@@ -325,10 +328,10 @@ oldpar <- par()
 
 #histogram van input
 par(mfrow=c(2,2))
-hist(y.3[,1], breaks = "Scott")
-hist(y.3[,2], breaks = "Scott")
-hist(y.3[,3], breaks = "Scott")
-hist(y.3[,4], breaks = "Scott")
+hist(y.3[,1], breaks = "Scott", main = "Histogram of Ttarget", xlab = "Ttarget")
+hist(y.3[,2], breaks = "Scott", main = "Histogram of T2010", xlab = "T2010")
+hist(y.3[,3], breaks = "Scott", main = "Histogram of TCRE", xlab = "TCRE")
+hist(y.3[,4], breaks = "Scott", main = "Histogram of CO22010", xlab = "CO22010")
 # apply(y.1.5, 2, hist)
 par(mfrow=c(1,1))
 #par(oldpar)
@@ -359,6 +362,11 @@ plot(d.3)
 CCmatrix <- rbind(CCmatrix.14[,5], CCmatrix.1.5[,5], CCmatrix.2[,5], CCmatrix.3[,5])
 CCmatrix <- CCmatrix[,-5]
 rownames(CCmatrix) <- c("1-4", "1.5", "2", "3")
+
+# print CCmatrix naar latex code
+# stargazer(CCmatrix, type = "text", out = "out.txt") was mooi geweest
+xtable(CCmatrix, digits = 3)
+
 
 #---------- fast99 (?) -------
 fast99(model = modelRun, factors = factors, 200, q, q.arg) # werkt niet
