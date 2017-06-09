@@ -7,6 +7,8 @@
 # Punten zijn ingelezen met http://arohatgi.info/WebPlotDigitizer/app/
 # 
 
+setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
+
 
 #----------- Relatie cumulatieve CO2 <-> temperatuur -----------------
 

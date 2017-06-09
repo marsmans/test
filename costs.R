@@ -5,6 +5,8 @@
 #
 #------------------------------------------------
 
+setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
+
 if(!exists("foo", mode="function")) source("test/packages.R")
 source("test/TCRE.R")
 
@@ -70,6 +72,7 @@ colnames(costs.x) <- c("cost.slope","baselineCO2")
 # transformeer random LHS naar LHS met goede parameters
 
 costs.slope <- qnorm(costs.x[,1], mean=costs_mean, sd=costs.std)
+costs.slope <- qpert(costs.x[,1], coef(gUL)[2], costs_mean, coef(gLL)[2], shape = 4)
 baselineCO2 <- qunif(costs.x[,2], min=6000,max=6000)
 
 #---------- run model -----------
