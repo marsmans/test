@@ -7,7 +7,7 @@
 
 setwd("~/disks/y/ontwapps/Timer/Users/Stijn/Model/")
 
-if(!exists("foo", mode="function")) source("test/packages.R")
+if(!exists("library(lhs)", mode="function")) source("test/packages.R")
 source("test/TCRE.R")
 
 
@@ -71,7 +71,7 @@ colnames(costs.x) <- c("cost.slope","baselineCO2")
 
 # transformeer random LHS naar LHS met goede parameters
 
-costs.slope <- qnorm(costs.x[,1], mean=costs_mean, sd=costs.std)
+#costs.slope <- qnorm(costs.x[,1], mean=costs_mean, sd=costs.std)
 costs.slope <- qpert(costs.x[,1], coef(gUL)[2], costs_mean, coef(gLL)[2], shape = 4)
 baselineCO2 <- qunif(costs.x[,2], min=6000,max=6000)
 
@@ -103,3 +103,21 @@ costs.CCmatrix <- costs.CCmatrix[,-8]
 rownames(costs.CCmatrix) <- c("1-4", "1.5", "2", "3")
 
 
+# nu voor veel waarden van Ttarget
+source("test/f.cumuCO2result.R")
+source("test/f.costsresult.R")
+
+costs.CCmatrix <- NULL
+teller <- 0
+for (i in seq(1, 4, by = 0.1)) {
+  # print(i)
+  cumuCO2result <- f.cumuCO2result(i,N)
+  z <- cbind(rep(i, N), T2010, TCRE, CO22010, cumuCO2result)
+  costs.result <- f.costsresult(cumuCO2result,N)
+  costs.z <- cbind(z, costs.slope, baselineCO2, costs.result)
+  costs.CCmatrix.hulp <- cor(costs.z)[c(-1,-7,-8),]
+  costs.CCmatrix <- rbind(costs.CCmatrix, costs.CCmatrix.hulp[,8])
+  
+  teller <- teller + 1
+}
+rownames(costs.CCmatrix) <- as.character(seq(1, 4, by = 0.1))
