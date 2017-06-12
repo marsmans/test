@@ -77,30 +77,31 @@ modelRun <- function (my.data) {
 }
 
 
-#---------- Model run met LHS uit package pse -----------
-# require(lhs)
-
-#factors <- c("Ttarget","T2010", "TCRE", "CO22010")
-#q <- c("qunif","qnorm", "qnorm","qnorm")
-#q.arg <- list(list(min=1,max=4), list(mean=T2010mean, sd=T2010std), list(mean=TCREmean,sd=TCREstd), list(mean=CO22010mean, sd=CO22010std))
-
-
-
-#--------------- Andere manier, handmatig  ---------
+#--------------- Run model  ---------
 
 # Zie ook http://r.789695.n4.nabble.com/Latin-Hypercube-Sampling-with-a-condition-td3563765.html
 # en https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2570191/
 
+
+# source("test/f.cumuCO2result.R")
+# cumuCO2result <- f.cumuCO2result(Ttarget,10000)
+
+
 require(lhs)
+# aantal iteraties
 N <- 10000
+# voor reproduceerbaarheid
+seed = set.seed(21)
+# welke target?
+Ttarget <- 1.5
+
 # maak "random" LHS
-set.seed(21)
 x <- randomLHS(N, 4)
 # geef namen
 colnames(x) <- c("Ttarget", "T2010", "TCRE", "CO22010")
 
 # transformeer random LHS naar LHS met goede parameters
-y <- x
+#y <- x
 
 # Ttarget verschillend
 Ttarget.14 <- qunif(x[,1], min=1,max=4)
@@ -108,17 +109,22 @@ Ttarget.1.5 <- qunif(x[,1], min=1.5,max=1.5)
 Ttarget.2 <- qunif(x[,1], min=2,max=2)
 Ttarget.3 <- qunif(x[,1], min=3,max=3)
 
+f.Ttarget <- rep(Ttarget, N)
 T2010 <- qnorm(x[,2], mean=T2010mean, sd=T2010std)
 TCRE <- qnorm(x[,3], mean=TCREmean,sd=TCREstd)
 CO22010 <- qnorm(x[,4], mean=CO22010mean, sd=CO22010std)
 
 # run model
+cumuCO2result <- mapply(oneRun, f.Ttarget, T2010, TCRE, CO22010)
+
 cumuCO2result.14 <- mapply(oneRun, Ttarget.14, T2010, TCRE, CO22010)
 cumuCO2result.1.5 <- mapply(oneRun, Ttarget.1.5, T2010, TCRE, CO22010)
 cumuCO2result.2 <- mapply(oneRun, Ttarget.2, T2010, TCRE, CO22010)
 cumuCO2result.3 <- mapply(oneRun, Ttarget.3, T2010, TCRE, CO22010)
 
 # bundel data en resultaat
+z <- cbind(f.Ttarget, T2010, TCRE, CO22010, cumuCO2result)
+
 z.14 <- cbind(Ttarget.14, T2010, TCRE, CO22010, cumuCO2result.14)
 z.1.5 <- cbind(Ttarget.1.5, T2010, TCRE, CO22010, cumuCO2result.1.5)
 z.2 <- cbind(Ttarget.2, T2010, TCRE, CO22010, cumuCO2result.2)
@@ -129,6 +135,8 @@ z.3 <- cbind(Ttarget.3, T2010, TCRE, CO22010, cumuCO2result.3)
 d.14 <- density(cumuCO2result.14)
 
 # correlation coefficient matrix
+CCmatrix <- cor(z)
+
 CCmatrix.14 <- cor(z.14)
 CCmatrix.1.5 <- cor(z.1.5)
 CCmatrix.2 <- cor(z.2)
@@ -138,6 +146,24 @@ CCmatrix.3 <- cor(z.3)
 CCmatrix <- rbind(CCmatrix.14[,5], CCmatrix.1.5[,5], CCmatrix.2[,5], CCmatrix.3[,5])
 CCmatrix <- CCmatrix[,-5]
 rownames(CCmatrix) <- c("1-4", "1.5", "2", "3")
+
+
+# nu voor veel waarden van Ttarget
+source("test/f.cumuCO2result.R")
+
+CCmatrix <- NULL
+teller <- 0
+for (i in seq(1, 4, by = 0.1)) {
+  # print(i)
+  cumuCO2result <- f.cumuCO2result(i,N)
+  z <- cbind(rep(i, N), T2010, TCRE, CO22010, cumuCO2result)
+  CCmatrix.hulp <- cor(z)[-1,]
+  CCmatrix <- rbind(CCmatrix, CCmatrix.hulp[-4,5])
+  
+  teller <- teller + 1
+}
+rownames(CCmatrix) <- as.character(seq(1, 4, by = 0.1))
+
 
 
 
